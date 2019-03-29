@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <title>Подбор программы магистратуры в Испании</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+        <style>
+            #masters {
+                max-height: 360px;
+                overflow: scroll;
+                border: 1px dashed lightskyblue;
+            }
+
+            #masters .card .button-row {
+                position: absolute;
+                bottom: 1px;
+                right: 1px;
+            }
+
+            .button-row .btn {
+                width: 32px;
+                height: 32px;
+            }
+        </style>
+
+        <script>
+            var Langs = {
+                "Español": "испанский",
+                "Catalán": "каталанский",
+                "Inglés": "английский"
+            };
+
+            var Masters = {
+                byCity: [],
+                byLanguage: [],
+                bySpec: [],
+
+                openLink: function(link) {
+                    var win = window.open(link, '_blank');
+
+                    win.focus();
+                },
+
+                priceRequest: function(id) {
+                    $.getJSON(
+                        'json/' + id + '.json',
+                        function(data) {
+                            var masterInfo = document.getElementById('masterInfo');
+
+                            var div = '<div class="card text-left"><div class="card-body">';
+                            div += '<h6 class="card-title">' + data.name + '</h6>';
+                            div += ' <h6 class="card-subtitle mb-2 text-muted">' + data.university + '</h6>';
+                            div += '<div><span class="text-muted">Доступные города:</span>&nbsp;<span class="text-info">';
+
+                            data.cities.forEach(
+                                function(city) {
+                                    if (!div.endsWith('>')) {
+                                        div +=",&nbsp;";
+                                    }
+                                    div += city;
+                                }
+                            );
+
+                            div += '</span></div><div><span class="text-muted">Доступные языки:</span>&nbsp;<span class="text-success">';
+
+                            data.languages.forEach(
+                                function(language) {
+                                    if (!div.endsWith('>')) {
+                                        div +=",&nbsp;";
+                                    }
+                                    div += Langs[language];
+                                }
+                            );
+
+                            div += '</span></div></div></div>';
+
+                            document.getElementById('masterId').value = data.id;
+                            document.getElementById('masterName').value = data.name;
+                            document.getElementById('masterUniversity').value = data.university;
+
+                            masterInfo.innerHTML = div;
+
+                            $("#priceModal").modal();
+                        }
+                    );
+                },
+
+                submitForm: function() {
+                    document.getElementById('requestForm').submit();
+
+                    $("#priceModal").modal('hide');
+                },
+
+                refreshList: function() {
+                    var cross = Masters.bySpec.concat(Masters.byLanguage).concat(Masters.byCity);
+
+                    cross = cross.filter(
+                        function(id, idx) {
+                            if (cross.lastIndexOf(id) > 0 && cross.lastIndexOf(id) !== idx) {
+                                return false;
+                            }
+
+                            if (Masters.byCity.length > 0 && Masters.byCity.indexOf(id) === -1) {
+                                return false;
+                            }
+
+                            if (Masters.byLanguage.length > 0 && Masters.byLanguage.indexOf(id) === -1) {
+                                return false;
+                            }
+
+                            if (Masters.bySpec.length > 0 && Masters.bySpec.indexOf(id) === -1) {
+                                return false;
+                            }
+
+                            return true;
+                        }
+                    );
+
+                    if (cross.length > 0) {
+                        var masters = document.getElementById('masters');
+
+                        masters.innerHTML = '';
+
+                        cross.forEach(
+                            function(id) {
+                                $.getJSON(
+                                    'json/' + id + '.json',
+                                    function(data) {
+                                        var div = '<div class="card text-left"><div class="card-body">';
+                                        div += '<h6 class="card-title">' + data.name + '</h6>';
+                                        div += ' <h6 class="card-subtitle mb-2 text-muted">' + data.university + '</h6>';
+                                        div += '<div><span class="text-muted">Доступные города:</span>&nbsp;<span class="text-info">';
+
+                                        data.cities.forEach(
+                                            function(city) {
+                                                if (!div.endsWith('>')) {
+                                                    div +=",&nbsp;";
+                                                }
+                                                div += city;
+                                            }
+                                        );
+
+                                        div += '</span></div><div><span class="text-muted">Доступные языки:</span>&nbsp;<span class="text-success">';
+
+                                        data.languages.forEach(
+                                            function(language) {
+                                                if (!div.endsWith('>')) {
+                                                    div +=",&nbsp;";
+                                                }
+                                                div += Langs[language];
+                                            }
+                                        );
+
+                                        div += '</span></div></div><div class="button-row">';
+
+                                        div += '<button class="btn btn-sm btn-primary" onclick="Masters.openLink(\'' + data.link + '\')" data-toggle="tooltip" title="Информация на сайте ВУЗа">@</button>';
+
+                                        if (data.priceAvailable) {
+                                            div += '&nbsp;<button class="btn btn-sm btn-success" onclick="Masters.priceRequest(' + data.id + ')" data-toggle="tooltip" title="Запрос цены и условий">$</button>';
+                                        }
+
+                                        div += '</div></div>';
+
+                                        masters.innerHTML += div;
+
+                                        $('[data-toggle="tooltip"]').tooltip();
+                                    }
+                                );
+                            }
+                        )
+                    }
+                    else {
+
+                    }
+
+                    Masters.bySpec = [];
+                }
+            };
+
+            $(document).ready(
+                function() {
+                    $.getJSON(
+                        "by_lang.json",
+                        function(data) {
+                            var items = [];
+
+                            items.push("<option value='-'>Любой</option>");
+                            $.each(data, function(key, val) {
+                                items.push( "<option value='" + key + "'>" + key + "</option>" );
+                            });
+
+                            document.getElementById("language").innerHTML = items.join("");
+
+                            $("#language").on(
+                                'change',
+                                function() {
+                                    var language =  document.getElementById("language");
+                                    var selectedLanguage = language.options[language.selectedIndex].value;
+
+                                    Masters.byLanguage = selectedLanguage !== '-' ? data[selectedLanguage] : [];
+
+                                    Masters.refreshList();
+                                }
+                            );
+                        }
+                    );
+
+                    $.getJSON(
+                        "by_city.json",
+                        function(data) {
+                            const ordered = {};
+
+                            Object.keys(data).sort().forEach(function(key) {
+                                ordered[key] = data[key];
+                            });
+
+                            var items = [];
+
+                            items.push("<option value='-'>Любой</option>");
+                            $.each(ordered, function(key, val) {
+                                items.push( "<option value='" + key + "'>" + key + "</option>" );
+                            });
+
+                            document.getElementById("city").innerHTML = items.join("");
+
+                            $("#city").on(
+                                'change',
+                                function() {
+                                    var city =  document.getElementById("city");
+                                    var selectedCity = city.options[city.selectedIndex].value;
+
+                                    Masters.byCity = selectedCity !== '-' ? data[selectedCity] : [];
+
+                                    Masters.refreshList();
+                                }
+                            );
+                        }
+                    );
+
+
+
+                    $.getJSON(
+                        "by_name_ru.json",
+                        function(data) {
+                            $("#spec").autocomplete({
+                                source: function (search, response) {
+                                    response(Object.keys(data).filter(
+                                        function(key) {
+                                            return key.toLowerCase().indexOf(search.term.toLowerCase()) != -1;
+                                        }
+                                    ).map(
+                                        function(value) {
+                                            return {label: value.toLowerCase(), value: value};
+                                        }
+                                    ));
+                                },
+                                minLength: 2,
+                                select: function(event, ui) {
+                                    Masters.bySpec = data[ui.item.value];
+
+                                    Masters.refreshList();
+                                }
+                            });
+                        }
+                    );
+
+                    Masters.refreshList();
+                }
+            );
+        </script>
+    </head>
+    <body>
+        <div class="text-center mt-5">
+            <h3>Подбор программы магистратуры в Испании</h3>
+    
+            <br/>
+    
+            <p class="text-default text-justify col-lg-5 col-md-8 col-sm-10 col-xl-4" style="margin: 0 auto; float: none;">
+                Данный инструмент позволит вам подобрать программу магистратуры в Испании по городу, языку программы и специальности.<br>
+                Задайте параметры поиска и программа автоматически покажет вам соответствующие программы магистратуры.<br>
+                Если вы нашли интересующую программу и хотели бы узнать подробности по поступлению, ценам и оформлению учебной визы, обратитесь
+                в компанию <a href="http://www.terrastudy.ru">Terra Study</a>.
+            </p>
+    
+            <br/>
+
+            <hr>
+
+            <div class="container-fluid">
+                <div class="row col-lg-10 col-md-12 col-sm-12 col-xl-8" style="margin: 0 auto; float: none;">
+                    <div class="col-lg-5 col-md-12 col-sm-12 col-xl-6">
+                        <div class="form-group text-left">
+                            <label for="city">Город:</label>
+                            <select class="form-control" id="city">
+                            </select>
+                            <small id="cityHelp" class="form-text text-muted">Город, в котором вы бы хотели учиться.</small>
+                        </div>
+                        <div class="form-group text-left">
+                                <label for="language">Язык:</label>
+                                <select class="form-control" id="language">
+                                </select>
+                                <small id="languageHelp" class="form-text text-muted">Язык на котором преподается программа.</small>
+                        </div>
+                        <div class="form-group text-left">
+                                <label for="spec">Направление:</label>
+                                <input type="text" class="form-control" id="spec" placeholder="Ключевые слова, например 'аудит'...">
+                                <small id="specHelp" class="form-text text-muted">Выберите направление по ключевым словам.</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-md-12 col-sm-12 col-xl-6 p-3" id="masters">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="priceModal" tabindex="-1" role="dialog" aria-labelledby="priceModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="priceModalLabel">Запрос цены и условия</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="masterInfo">
+
+                        </div>
+                        <hr>
+                        <form id="requestForm" action="mailto:info@terrastudy.ru" method="post">
+                            <div class="form-group">
+                                <label for="fullName">Ваше имя</label>
+                                <input type="text" class="form-control" id="fullName" placeholder="Введите Ваше имя..." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" placeholder="Введите Ваше имя..." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Сообщение</label>
+                                <textarea class="form-control" id="message" rows="10" placeholder="Что именно вас интересует? Цена? Сроки? Условия поступления?"></textarea>
+                            </div>
+
+                            <input type="hidden" id="masterId" value="">
+                            <input type="hidden" id="masterName" value="">
+                            <input type="hidden" id="masterUniversity" value="">
+
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" onclick="Masters.submitForm();" class="btn btn-primary">Отправить запрос</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <br/>
+
+        <footer class="text-center">
+            2019, <a href="http://youtube.com/PavelSavinovEs">http://youtube.com/PavelSavinovEs</a>
+        </footer>
+    </body>
+</html>
