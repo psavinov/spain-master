@@ -123,9 +123,9 @@
                         }
                     );
 
-                    if (cross.length > 0) {
-                        var masters = document.getElementById('masters');
+                    var masters = document.getElementById('masters');
 
+                    if (cross.length > 0) {
                         masters.innerHTML = '';
 
                         cross.forEach(
@@ -177,7 +177,7 @@
                         )
                     }
                     else {
-
+                        masters.innerHTML='<div class="text-center"><h3>Уточните параметры поиска.</h3></div>';
                     }
 
                     Masters.bySpec = [];
