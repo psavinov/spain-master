@@ -1,0 +1,16 @@
+#masters {
+	max-height: 360px;
+	overflow: scroll;
+	border: 1px dashed lightskyblue;
+}
+
+#masters .card .button-row {
+	position: absolute;
+	bottom: 1px;
+	right: 1px;
+}
+
+.button-row .btn {
+	width: 32px;
+	height: 32px;
+}
