@@ -1,1 +1,16 @@
-{"priceInfo":"29.88 \u20ac /ECTS","codes":["00"],"cities":["Barcelona"],"languages":["Inglés"],"university":"Universitat Politécnica de Catalunya","link":"http://mastersdegrees.upc.edu/mast/","name":"Màster en  Aerospace Science and Technology","id":1,"priceAvailable":true}
+{
+	"codes": [
+		"00"
+	],
+	"cities": [
+		"Barcelona"
+	],
+	"languages": [
+		"Inglés"
+	],
+	"university": "Universitat Politécnica de Catalunya",
+	"link": "http://mastersdegrees.upc.edu/mast/",
+	"name": "Màster en  Aerospace Science and Technology",
+	"id": 1,
+	"priceAvailable": true
+}
