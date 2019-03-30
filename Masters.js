@@ -93,7 +93,11 @@ var Masters = {
 		var masters = document.getElementById('masters');
 
 		if (cross.length > 0) {
-			masters.innerHTML = '';
+			masters.innerHTML = '<div class="lds-hourglass"></div>';
+
+			var content = '';
+
+			var counter = 0;
 
 			cross.forEach(
 				function(id) {
@@ -135,13 +139,19 @@ var Masters = {
 
 							div += '</div></div>';
 
-							masters.innerHTML += div;
+							content += div;
 
-							$('[data-toggle="tooltip"]').tooltip();
+							counter++;
+
+							if (counter == cross.length) {
+								masters.innerHTML = content;
+
+								$('[data-toggle="tooltip"]').tooltip();
+							}
 						}
 					);
 				}
-			)
+			);
 		}
 		else {
 			masters.innerHTML='<div class="text-center"><h3>Уточните параметры поиска</h3></div>';
