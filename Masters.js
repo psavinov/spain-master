@@ -238,16 +238,18 @@ $(document).ready(
 					},
 					minLength: 2,
 					select: function(event, ui) {
-						Masters.bySpec = data[ui.item.value];
+						if (ui.item.value.length > 0) {
+							Masters.bySpec = data[ui.item.value];
 
-						Masters.refreshList();
+							Masters.refreshList();
+						}
 					}
 				});
 			}
 		);
 
 		$("#spec").on(
-			'keypress',
+			'keyup',
 			function() {
 				if (document.getElementById('spec').value === '') {
 					Masters.bySpec = [];
